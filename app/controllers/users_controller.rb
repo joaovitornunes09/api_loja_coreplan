@@ -1,38 +1,76 @@
 class UsersController < ApplicationController
-    def create
-        @user = User.create(user_params)
+  before_action :set_user, only: %i[ show update destroy ]
 
-        if @user.valid?
-            token = encode_token({user_id: @user.id})
-            render json: {user: @user, token: token}, 
-            status: :ok
-        else
-            render json: {error: "Usuario ou senha inválidos"}, 
-            status: :unprocessable_entity
-        end
-    end
+  # GET /users
+  def index
+    @users = User.all
 
-    def login 
-        @user = User.find_by(username: user_params[:username])
+    render json: @users
+  end
 
-        if @user && @user.authenticate(user_params[:password])
-            token = encode_token({user_id: @user.id})
-            render json: {
-                message: "Requisição realizada com sucesso" ,
+  # GET /users/1
+  def show
+    render json: @user
+  end
+
+  # POST /users
+  def create
+      @user = User.create(user_params)
+
+      if @user.valid?
+          token = encode_token({user_id: @user.id})
+          render json: {user: @user, token: token}, 
+          status: :ok
+      else
+          render json: {error: "Usuario ou senha inválidos"}, 
+          status: :unprocessable_entity
+      end
+  end
+
+  def login 
+      @user = User.find_by(username: user_params[:username])
+      
+      if @user && @user.authenticate(user_params[:password])
+          token = encode_token({user_id: @user.id})
+          render json: {
+              status: true,
+              message: "Requisição realizada com sucesso" ,
+              data: {
                 user: {id: @user.id , username: @user.username}, 
                 token: token
-            }, status: :ok
-        else 
-            render json: {
-                message: "Erro ao realizar requisição" ,
-                error: "Usuario ou senha inválidos"
-            }, status: :unprocessable_entity
-        end
+              }
+          }, status: :ok
+      else 
+          render json: {
+              status: false,
+              message: "Erro ao realizar requisição" ,
+              error: "Usuario ou senha inválidos"
+          }, status: :unprocessable_entity
+      end
+  end
+
+  # PATCH/PUT /users/1
+  def update
+    if @user.update(user_params)
+      render json: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /users/1
+  def destroy
+    @user.destroy!
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_user
+      @user = User.find(params[:id])
     end
 
-    private
-    
+    # Only allow a list of trusted parameters through.
     def user_params
-        params.permit(:username, :password)
+        params.permit(:username, :password, :user_type_id)
     end
 end

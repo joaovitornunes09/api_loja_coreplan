@@ -3,8 +3,8 @@ class CreateOffers < ActiveRecord::Migration[7.1]
     create_table :offers do |t|
       t.string :name
       t.text :description
-      t.integer :discount_percentage
-      t.references :product, null: true, foreign_key: true
+      t.integer :discount_percent
+      t.references :product, null: true
 
       t.timestamps
     end

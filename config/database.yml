@@ -2,15 +2,14 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: localhost
-  port: 1004
+  host: db
   username: postgres
   password: password
   pool: 5
 
 development:
   <<: *default
-  database: loja_coreplan_development
+  database: loja_coreplan
 
 test:
   <<: *default
@@ -18,4 +17,4 @@ test:
 
 production:
   <<: *default
-  database: loja_coreplan
+  database: loja

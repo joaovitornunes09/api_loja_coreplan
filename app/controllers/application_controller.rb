@@ -29,4 +29,13 @@ class ApplicationController < ActionController::API
     def authorize
         render json: {message: 'Você precisa estar logado'}, status: :unauthorized unless authorized_user
     end
+
+    def needsAdminUser
+        render json: {status: false, message: 'Você precisa ser admin para acessar essa função.'}, status: :unauthorized unless authorized_user.user_type_id == 1
+    end
+
+    def calculate_discounted_value(price, discount_percent)
+        discounted_value = price - (price * discount_percent / 100)
+        discounted_value.round(2)
+    end
 end

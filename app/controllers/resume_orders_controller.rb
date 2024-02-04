@@ -1,0 +1,76 @@
+class ResumeOrdersController < ApplicationController
+  before_action :set_resume_order, only: %i[ show update destroy ]
+
+  # GET /resume_orders
+  def index
+    @resume_orders = ResumeOrder.all
+
+    render json: {status: true ,message: "Requisição realizada com sucesso.", data: @resume_orders}
+  end
+
+  # GET /resume_orders/1
+  def show
+    render json: {status: true ,message: "Requisição realizada com sucesso.", data: @resume_order}
+  end
+
+  # POST /resume_orders
+  def create
+    order = Order.find_by(id: params[:order_id])
+    order_items = order&.order_items
+    offer = Offer.find_by(product_id: nil)
+
+    if order_items
+      total_value = order_items.sum { |order_item| order_item.product.price * order_item.quantity }
+      total_value_with_discounts = order_items.sum { |order_item| order_item.price_with_discount * order_item.quantity }
+
+      if offer
+        total_value_with_discounts -= (total_value_with_discounts * (offer.discount_percent / 100.0)).round(2)
+      end
+
+      order_summary = {
+        order_id: params[:order_id],
+        total_value: total_value.round(2),
+        total_value_with_discounts: total_value_with_discounts.round(2)
+      }
+      @resume_order = ResumeOrder.new(order_summary)
+
+      if @resume_order.save
+        render json: {status: true ,message: "Requisição realizada com sucesso.", data: @resume_order}, status: :created, location: @resume_order
+      else
+        render json: {status: false, message: "Erro ao realizar requisição.", data: @resume_order.errors}, status: :unprocessable_entity
+      end
+    end
+    
+
+    
+  end
+
+  # PATCH/PUT /resume_orders/1
+  def update
+    if @resume_order.update(product_params)
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: @resume_order.slice(:order_id, :total_value, :total_value_with_discounts)}
+    else
+      render json: {status: false, message: "Erro ao realizar requisição.", data: @resume_order.errors}, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /resume_orders/1
+  def destroy
+    if @resume_order.destroy
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: "Produto excluido com sucesso."}
+    else 
+      render json: { status: false, message: "Erro ao excluir o produto.", data: @resume_order.errors }, status: :unprocessable_entity
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_resume_order
+      @resume_order = ResumeOrder.find(params[:id])
+    end
+
+    # Only allow a list of trusted parameters through.
+    def resume_order_params
+      params.require(:resume_order).permit(:order_id, :total_value, :total_value_with_discounts)
+    end
+end
