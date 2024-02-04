@@ -36,7 +36,7 @@ class UsersController < ApplicationController
               status: true,
               message: "Requisição realizada com sucesso" ,
               data: {
-                user: {id: @user.id , username: @user.username}, 
+                user: {id: @user.id , username: @user.username, role: @user.user_type_id}, 
                 token: token
               }
           }, status: :ok
