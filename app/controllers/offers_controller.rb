@@ -47,12 +47,18 @@ class OffersController < ApplicationController
   
   def get_partial_order_value
     @offer           = Offer.find_by(product_id: nil)
-    partial_value    = params[:value].to_f
 
-    discounted_value = partial_value - (partial_value * @offer.discount_percent / 100)
-    discounted_value.round(2)
+    if @offer
 
-    render json: {status: true ,message: "Requisição realizada com sucesso.", data: discounted_value}
+      partial_value    = params[:value].to_f
+
+      discounted_value = partial_value - (partial_value * @offer.discount_percent / 100)
+
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: discounted_value.round(2)}
+    else
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: params[:value].to_f.round(2)}
+    end
+
 
   end
 

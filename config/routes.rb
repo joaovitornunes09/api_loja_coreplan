@@ -9,4 +9,5 @@ Rails.application.routes.draw do
   
   post "/login", to: "users#login"
   get "/partial/order", to: "offers#get_partial_order_value"
+  get "/resume/order/products/:id", to: "resume_orders#get_resume_order_with_products"
 end

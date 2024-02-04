@@ -1,5 +1,5 @@
 class ResumeOrdersController < ApplicationController
-  before_action :set_resume_order, only: %i[ show update destroy ]
+  before_action :set_resume_order, only: %i[ show update destroy get_resume_order_with_products ]
 
   # GET /resume_orders
   def index
@@ -60,6 +60,31 @@ class ResumeOrdersController < ApplicationController
       render json: {status: true ,message: "Requisição realizada com sucesso.", data: "Produto excluido com sucesso."}
     else 
       render json: { status: false, message: "Erro ao excluir o produto.", data: @resume_order.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def get_resume_order_with_products
+    order     = Order.find(@resume_order.order_id)
+    if order
+      products  = order.order_items.map do | order_item | 
+        product = order_item.product
+        { 
+          name: product.name,
+          description: product.description,
+          original_price: product.price,
+          price_with_discount: order_item.price_with_discount,
+          quantity: order_item.quantity
+        }
+      end
+
+      resume_order = {
+        order: @resume_order,
+        order_items: products
+      }
+
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: resume_order}
+    else 
+      render json: { status: false, message: "Erro ao realizar requisição.", data: "Pedido não encontrado" }, status: :not_found
     end
   end
 
