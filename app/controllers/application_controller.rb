@@ -34,6 +34,22 @@ class ApplicationController < ActionController::API
         render json: {status: false, message: 'Você precisa ser admin para acessar essa função.'}, status: :unauthorized unless authorized_user.user_type_id == 1
     end
 
+
+    def get_price_with_discount_items(products)
+        products.each do | item |
+          offers           = Offer.where(product_id: item[:product_id])
+          product          = Product.find(item[:product_id])
+  
+          if offers.present?
+            discounted_prices = offers.map { |offer| calculate_discounted_value(product.price, offer.discount_percent) }
+      
+            item[:price_with_discount] = discounted_prices.min
+          else
+            item[:price_with_discount] = product.price
+          end
+        end
+    end
+      
     def calculate_discounted_value(price, discount_percent)
         discounted_value = price - (price * discount_percent / 100)
         discounted_value.round(2)

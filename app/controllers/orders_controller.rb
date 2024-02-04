@@ -20,7 +20,12 @@ class OrdersController < ApplicationController
     @order = Order.new(user: @user)
 
     if @order.save
-      render json: {status: true , message: "Requisição realizada com sucesso.", data: @order}, status: :created, location: @order
+      order_service = OrderService.new
+      resume_order  = order_service.CreateOrder(@order, params[:order_items])
+    end
+
+    if resume_order
+      render json: {status: true , message: "Requisição realizada com sucesso.", data: resume_order}, status: :created, location: @order
     else
       render json: {status: false, message: "Erro ao realizar requisição.", data: @order.errors}, status: :unprocessable_entity
     end
@@ -65,6 +70,6 @@ class OrdersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def order_params
-      params.require(:order).permit(:user_id)
+      params.require(:order).permit(:user_id, :order_items)
     end
 end

@@ -17,7 +17,7 @@ class OrderItemsController < ApplicationController
   # POST /order_items
   def create
     order_id = params[:order_id]
-    order_items = params[:order_item]
+    order_items = params[:order_items]
   
     get_price_with_discount_items(order_items)
   
@@ -61,20 +61,5 @@ class OrderItemsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def order_item_params
       params.require(:order_item).permit(:order_id, :order_items, :product_id, :quantity, :price_with_discount)
-    end
-
-    def get_price_with_discount_items(order_items)
-      order_items.each do | item |
-        offers           = Offer.where(product_id: item[:product_id])
-        product          = Product.find(item[:product_id])
-
-        if offers.present?
-          discounted_prices = offers.map { |offer| calculate_discounted_value(product.price, offer.discount_percent) }
-    
-          item[:price_with_discount] = discounted_prices.min
-        else
-          item[:price_with_discount] = product.price
-        end
-      end
     end
 end
