@@ -10,7 +10,13 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    render json: @user
+    render json: {
+      status: true,
+      message: "Requisição realizada com sucesso" ,
+      data: {
+        id: @user.id , username: @user.username, role: @user.user_type_id
+      }
+  }, status: :ok
   end
 
   # POST /users
