@@ -109,7 +109,7 @@ class ResumeOrdersController < ApplicationController
           }
         end
 
-        items << { order: order.resume_orders, order_items: products }
+        items << { order: order.resume_orders.first, order_items: products }
       end
       render json: {status: true ,message: "Requisição realizada com sucesso.", data: items}
   end
