@@ -1,4 +1,5 @@
 class ResumeOrdersController < ApplicationController
+  before_action :authorize
   before_action :set_resume_order, only: %i[ show update destroy get_resume_order_with_products ]
 
   # GET /resume_orders
@@ -86,6 +87,31 @@ class ResumeOrdersController < ApplicationController
     else 
       render json: { status: false, message: "Erro ao realizar requisição.", data: "Pedido não encontrado" }, status: :not_found
     end
+  end
+
+  def get_user_resume_order_with_products
+    if @user.user_type_id == 1
+      orders_user = Order.all
+    else
+      orders_user = @user.orders
+    end
+
+      items = []
+      orders_user.each do |order|
+        products = order.order_items.map do |order_item|
+          product = order_item.product
+          {
+            name: product.name,
+            description: product.description,
+            original_price: product.price,
+            price_with_discount: order_item.price_with_discount,
+            quantity: order_item.quantity
+          }
+        end
+
+        items << { order: order.resume_orders, order_items: products }
+      end
+      render json: {status: true ,message: "Requisição realizada com sucesso.", data: items}
   end
 
   private
