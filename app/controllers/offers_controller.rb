@@ -5,9 +5,21 @@ class OffersController < ApplicationController
 
   # GET /offers
   def index
-    @offers = Offer.where(product_id: nil)
+    @offers = Offer.all
+    
+    offers_with_products = @offers.map do | offer |
+      product = offer.product_id ? Product.find(offer.product_id) : nil
 
-    render json: {status: true ,message: "Requisição realizada com sucesso.", data: @offers}
+      {
+        id: offer.id,
+        name: offer.name,
+        description: offer.description,
+        discount_percent: offer.discount_percent,
+        product_name: product&.name
+      }
+    end
+
+    render json: {status: true ,message: "Requisição realizada com sucesso.", data: offers_with_products}
   end
 
   # GET /offers/1
