@@ -15,7 +15,8 @@ class OffersController < ApplicationController
         name: offer.name,
         description: offer.description,
         discount_percent: offer.discount_percent,
-        product_name: product&.name
+        product_name: product&.name,
+        product_id: product&.id
       }
     end
 
