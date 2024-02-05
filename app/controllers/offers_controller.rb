@@ -38,6 +38,7 @@ class OffersController < ApplicationController
       render json: {status: false, message: "Erro ao realizar requisição.", data: @offer.errors}, status: :unprocessable_entity
     end
   end
+  
 
   # PATCH/PUT /offers/1
   def update
