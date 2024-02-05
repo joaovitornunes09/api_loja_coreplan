@@ -44,6 +44,10 @@ git clone https://github.com/joaovitornunes09/api_loja_coreplan.git
 ##### Configuração de Arquivos:
 
 1. Copiar o arquivo *docker-compose.example.yml* e colar com nome de *docker-compose.yml*
+   
+```sh
+cp docker-compose.example.yml docker-compose.yml
+```
 
 ##### Suba o serviço
 Com o Docker-compose instalado, execute esse comando na raiz do projeto:
