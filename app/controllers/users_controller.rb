@@ -1,5 +1,7 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show update destroy ]
+  rescue_from ActionDispatch::Http::Parameters::ParseError, with: :handle_parse_error
+  rescue_from ActiveRecord::NotNullViolation, with: :handle_parse_error
 
   # GET /users
   def index
@@ -35,7 +37,7 @@ class UsersController < ApplicationController
 
   def login 
       @user = User.find_by(username: user_params[:username])
-      
+
       if @user && @user.authenticate(user_params[:password])
           token = encode_token({user_id: @user.id})
           render json: {
@@ -78,5 +80,9 @@ class UsersController < ApplicationController
     # Only allow a list of trusted parameters through.
     def user_params
         params.permit(:username, :password).merge(user_type_id: 2)
+    end
+
+    def handle_parse_error(exception)
+      render json: { status: 400, message: "Erro ao realizar requisição", data: "Usuário ou senha inválido."}, status: :bad_request
     end
 end

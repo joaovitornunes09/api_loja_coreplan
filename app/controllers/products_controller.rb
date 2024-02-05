@@ -24,11 +24,16 @@ class ProductsController < ApplicationController
   # POST /products
   def create
     @product = Product.new(product_params)
-
-    if @product.save
-      render json: {status: true ,message: "Requisição realizada com sucesso.", data: @product}, status: :created, location: @product
-    else
-      render json: {status: false, message: "Erro ao realizar requisição.", data: @product.errors}, status: :unprocessable_entity
+    begin
+      if @product.save
+        render json: {status: true ,message: "Requisição realizada com sucesso.", data: @product}, status: :created, location: @product
+      else
+        
+        error_message = @product.errors[:name].present? ? @product.errors[:name].first : @product.errors.full_messages.to_sentence
+        render json: { status: false, message: "Erro ao realizar requisição.", data: error_message }, status: :unprocessable_entity
+      end
+    rescue ActiveRecord::RecordNotUnique 
+      render json: {status: false, message: "Erro ao realizar requisição.", data: "Já existe um produto com esse nome."}, status: :unprocessable_entity
     end
   end
 
